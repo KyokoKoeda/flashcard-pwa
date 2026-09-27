@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#20242a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="暗記カード">
+    <title>暗記カード</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icons/icon-180.png">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section id="home-screen" class="screen" aria-labelledby="app-title">
+        <header class="page-header">
+          <div class="home-title-row">
+            <p class="eyebrow">MY FLASHCARDS</p>
+            <button id="toggle-category-edit-button" class="header-icon-button" type="button" aria-label="カテゴリを編集" aria-pressed="false">
+              <span id="category-edit-icon" aria-hidden="true">✎</span>
+            </button>
+          </div>
+          <h1 id="app-title">暗記カード</h1>
+          <p class="header-copy">学習するカテゴリを選んでください。</p>
+        </header>
+
+        <section aria-labelledby="category-heading">
+          <div class="section-heading">
+            <h2 id="category-heading">カテゴリ</h2>
+            <span id="total-count" class="subtle-count"></span>
+          </div>
+          <button id="show-category-form-button" class="button button--secondary full-width category-add-button" type="button" hidden>＋ カテゴリを追加</button>
+          <form id="category-form" class="category-form" hidden>
+            <label id="category-form-label" for="category-name-input">カテゴリ名</label>
+            <input id="category-name-input" type="text" maxlength="50" autocomplete="off" required>
+            <div class="category-form-actions">
+              <button id="cancel-category-form-button" class="button button--secondary" type="button">キャンセル</button>
+              <button class="button button--primary" type="submit">保存</button>
+            </div>
+          </form>
+          <p id="empty-category-message" class="empty-message" hidden>カテゴリがありません。最初のカテゴリを作成してください。</p>
+          <div id="category-list" class="category-list"></div>
+        </section>
+
+        <section class="data-actions" aria-labelledby="data-heading">
+          <h2 id="data-heading">データ管理</h2>
+          <div class="button-stack">
+            <button id="seed-button" class="button button--primary" type="button">ダミーカード登録</button>
+            <button id="backup-button" class="button button--secondary" type="button">バックアップCSV出力</button>
+          </div>
+          <p class="step-note">全カードをカテゴリ・学習状態付きのCSVで保存します。</p>
+        </section>
+      </section>
+
+      <section id="category-screen" class="screen" aria-labelledby="category-title" hidden>
+        <header class="subpage-header">
+          <button class="back-button js-home-button" type="button">← カテゴリ一覧</button>
+          <p class="eyebrow">CATEGORY</p>
+          <h1 id="category-title"></h1>
+          <p id="category-card-count" class="header-copy"></p>
+        </header>
+
+        <section class="direction-panel" aria-labelledby="direction-heading">
+          <div>
+            <h2 id="direction-heading">カードの向き</h2>
+            <p id="direction-description">表面を問題として出題します</p>
+          </div>
+          <button id="direction-toggle" class="switch" type="button" role="switch" aria-checked="false">
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span id="direction-label" class="switch__label">表 → 裏</span>
+          </button>
+        </section>
+
+        <section class="study-menu" aria-labelledby="study-menu-heading">
+          <h2 id="study-menu-heading">学習方法</h2>
+          <button id="start-new-button" class="mode-button" type="button">
+            <span>未学習</span><strong id="new-count">0件</strong>
+          </button>
+          <button id="start-review-button" class="mode-button" type="button">
+            <span>復習</span><strong id="category-review-count">0件</strong>
+          </button>
+          <button id="start-random-button" class="mode-button mode-button--accent" type="button">
+            <span>ランダム</span><strong id="random-count">0件</strong>
+          </button>
+        </section>
+
+        <section class="category-import" aria-labelledby="category-import-heading">
+          <h2 id="category-import-heading">カードを追加</h2>
+          <button id="category-import-button" class="button button--secondary full-width" type="button">CSVインポート</button>
+          <input id="category-csv-input" class="visually-hidden" type="file" accept=".csv,text/csv,text/plain" tabindex="-1" aria-hidden="true">
+          <p class="step-note">question,answer形式のUTF-8 CSVを選択してください。</p>
+        </section>
+      </section>
+
+      <section id="study-screen" class="screen" aria-labelledby="study-title" hidden>
+        <header class="study-header">
+          <button id="quit-study-button" class="back-button" type="button">← 中断</button>
+          <div>
+            <p id="study-category" class="study-category"></p>
+            <p id="study-progress" class="study-progress" aria-live="polite"></p>
+          </div>
+        </header>
+        <div class="progress-track" aria-hidden="true"><div id="progress-bar" class="progress-bar"></div></div>
+
+        <article class="flashcard">
+          <div class="flashcard__question">
+            <p id="question-side-label" class="card-label">表面</p>
+            <h1 id="study-title"></h1>
+          </div>
+          <button id="show-answer-button" class="button button--primary" type="button">答えを見る</button>
+          <div id="answer-area" class="answer-area" hidden>
+            <p id="answer-side-label" class="card-label">裏面</p>
+            <p id="answer-text" class="answer-text"></p>
+            <button id="edit-card-button" class="edit-card-button" type="button">カードを編集</button>
+            <form id="edit-card-form" class="edit-card-form" hidden>
+              <label for="edit-front-input">表面</label>
+              <textarea id="edit-front-input" rows="3" required></textarea>
+              <label for="edit-back-input">裏面</label>
+              <textarea id="edit-back-input" rows="3" required></textarea>
+              <div class="edit-card-actions">
+                <button id="cancel-edit-button" class="button button--secondary" type="button">キャンセル</button>
+                <button class="button button--primary" type="submit">保存</button>
+              </div>
+              <button id="delete-card-button" class="button button--danger" type="button">このカードを削除</button>
+            </form>
+          </div>
+        </article>
+
+        <div id="rating-actions" class="rating-actions">
+          <button id="needs-review-button" class="button button--review rating-button" type="button" aria-label="復習要（×）">×</button>
+          <button id="memorized-button" class="button button--success rating-button" type="button" aria-label="暗記済み（○）">○</button>
+        </div>
+      </section>
+
+      <section id="summary-screen" class="screen result-screen" aria-labelledby="summary-title" hidden>
+        <p class="eyebrow">RESULT</p>
+        <h1 id="summary-title">学習結果</h1>
+        <div id="result-chart" class="result-chart" role="img" aria-label="学習結果の円グラフ">
+          <div class="result-chart__center"><strong>10</strong><span>問</span></div>
+        </div>
+        <p id="result-summary" class="result-summary"></p>
+        <div class="result-legend" aria-hidden="true">
+          <span><i class="legend-dot legend-dot--success"></i>暗記済み</span>
+          <span><i class="legend-dot legend-dot--review"></i>復習要</span>
+        </div>
+        <button id="show-result-list-button" class="button button--primary full-width" type="button">次へ</button>
+      </section>
+
+      <section id="result-list-screen" class="screen" aria-labelledby="result-list-title" hidden>
+        <header class="subpage-header compact-header">
+          <p class="eyebrow">REVIEW</p>
+          <h1 id="result-list-title">今回の結果</h1>
+        </header>
+        <ol id="result-list" class="result-list"></ol>
+        <div class="result-actions">
+          <button id="back-to-category-button" class="button button--secondary" type="button">カテゴリトップに戻る</button>
+          <button id="retry-button" class="button button--primary" type="button">もう一度</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script src="./db.js"></script>
+    <script src="./csv.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
