@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "flashcard-pwa-v1";
+const CACHE_NAME = "flashcard-pwa-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
