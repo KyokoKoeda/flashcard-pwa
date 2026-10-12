@@ -40,7 +40,18 @@ const CsvImporter = (() => {
       }
 
       if (character === '"') {
-        if (field.length > 0) throw createFormatError("引用符はフィールドの先頭で使用してください", rowNumber);
+        // 過去のバックアップや表計算アプリで再保存されたCSVには、文章中の
+        // 引用符がエスケープされずに含まれることがあるため、文字として扱う。
+        if (field.length > 0) {
+          if (field.trim() === "") {
+            field = "";
+            inQuotes = true;
+          } else {
+            field += '"';
+          }
+          endedWithLineBreak = false;
+          continue;
+        }
         inQuotes = true;
         endedWithLineBreak = false;
         continue;
