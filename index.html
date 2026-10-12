@@ -50,8 +50,10 @@
           <div class="button-stack">
             <button id="seed-button" class="button button--primary" type="button">ダミーカード登録</button>
             <button id="backup-button" class="button button--secondary" type="button">バックアップCSV出力</button>
+            <button id="restore-button" class="button button--secondary" type="button">バックアップCSV復元</button>
+            <input id="restore-csv-input" class="visually-hidden" type="file" accept=".csv,text/csv,text/plain" tabindex="-1" aria-hidden="true">
           </div>
-          <p class="step-note">全カードをカテゴリ・学習状態付きのCSVで保存します。</p>
+          <p class="step-note">復元すると、現在のカテゴリとカードはバックアップ内容に置き換わります。</p>
         </section>
       </section>
 
@@ -89,6 +91,17 @@
 
         <section class="category-import" aria-labelledby="category-import-heading">
           <h2 id="category-import-heading">カードを追加</h2>
+          <button id="show-manual-card-form-button" class="button button--primary full-width" type="button">手動で追加</button>
+          <form id="manual-card-form" class="manual-card-form" hidden>
+            <label for="manual-question-input">表面</label>
+            <textarea id="manual-question-input" rows="3" required></textarea>
+            <label for="manual-answer-input">裏面</label>
+            <textarea id="manual-answer-input" rows="3" required></textarea>
+            <div class="edit-card-actions">
+              <button id="cancel-manual-card-button" class="button button--secondary" type="button">キャンセル</button>
+              <button class="button button--primary" type="submit">追加</button>
+            </div>
+          </form>
           <button id="category-import-button" class="button button--secondary full-width" type="button">CSVインポート</button>
           <input id="category-csv-input" class="visually-hidden" type="file" accept=".csv,text/csv,text/plain" tabindex="-1" aria-hidden="true">
           <p class="step-note">question,answer形式のUTF-8 CSVを選択してください。</p>

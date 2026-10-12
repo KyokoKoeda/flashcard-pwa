@@ -106,6 +106,22 @@ const FlashcardDB = (() => {
     return normalizedCards.length;
   }
 
+  async function replaceAllCards(cardList) {
+    const normalizedCards = cardList.map(normalizeCard);
+    const database = await openDatabase();
+    const transaction = database.transaction([CARD_STORE, CATEGORY_STORE], "readwrite");
+    const cardStore = transaction.objectStore(CARD_STORE);
+    const categoryStore = transaction.objectStore(CATEGORY_STORE);
+    cardStore.clear();
+    categoryStore.clear();
+    normalizedCards.forEach((card) => {
+      categoryStore.put({ name: card.category });
+      cardStore.add(card);
+    });
+    await transactionToPromise(transaction);
+    return normalizedCards.length;
+  }
+
   async function getAllCards() {
     const database = await openDatabase();
     const transaction = database.transaction(CARD_STORE, "readonly");
@@ -249,6 +265,7 @@ const FlashcardDB = (() => {
     VALID_STATUSES,
     addCard,
     addCards,
+    replaceAllCards,
     getAllCards,
     getCardsByCategory,
     getCardsByStatus,

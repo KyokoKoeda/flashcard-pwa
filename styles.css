@@ -204,6 +204,10 @@ h1, h2, h3, p { overflow-wrap: anywhere; }
 .edit-card-form label { color: var(--muted); font-size: 0.78rem; font-weight: 760; }
 .edit-card-form textarea { width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 12px; padding: 12px; color: var(--ink); background: #353c44; font: inherit; line-height: 1.5; }
 .edit-card-form textarea:focus { border-color: var(--brand); outline: 2px solid rgba(87, 196, 157, 0.22); }
+.manual-card-form { display: grid; gap: 9px; margin-top: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); text-align: left; }
+.manual-card-form label { color: var(--muted); font-size: 0.78rem; font-weight: 760; }
+.manual-card-form textarea { width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 12px; padding: 12px; color: var(--ink); background: #353c44; font: inherit; line-height: 1.5; }
+.manual-card-form textarea:focus { border-color: var(--brand); outline: 2px solid rgba(87, 196, 157, 0.22); }
 .edit-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 5px; }
 
 .result-screen { padding-top: 32px; text-align: center; }

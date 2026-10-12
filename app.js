@@ -105,6 +105,13 @@ const elements = {
   retryButton: document.querySelector("#retry-button"),
   seedButton: document.querySelector("#seed-button"),
   backupButton: document.querySelector("#backup-button"),
+  restoreButton: document.querySelector("#restore-button"),
+  restoreCsvInput: document.querySelector("#restore-csv-input"),
+  showManualCardFormButton: document.querySelector("#show-manual-card-form-button"),
+  manualCardForm: document.querySelector("#manual-card-form"),
+  manualQuestionInput: document.querySelector("#manual-question-input"),
+  manualAnswerInput: document.querySelector("#manual-answer-input"),
+  cancelManualCardButton: document.querySelector("#cancel-manual-card-button"),
   categoryImportButton: document.querySelector("#category-import-button"),
   categoryCsvInput: document.querySelector("#category-csv-input"),
   toast: document.querySelector("#toast")
@@ -517,6 +524,65 @@ async function importCategoryCsv(file) {
   }
 }
 
+function openManualCardForm() {
+  elements.manualCardForm.hidden = false;
+  elements.showManualCardFormButton.hidden = true;
+  elements.manualQuestionInput.focus();
+}
+
+function closeManualCardForm() {
+  elements.manualCardForm.reset();
+  elements.manualCardForm.hidden = true;
+  elements.showManualCardFormButton.hidden = false;
+}
+
+async function addManualCard(event) {
+  event.preventDefault();
+  const question = elements.manualQuestionInput.value.trim();
+  const answer = elements.manualAnswerInput.value.trim();
+  if (!question || !answer) return;
+
+  try {
+    await FlashcardDB.addCard({
+      question,
+      answer,
+      category: selectedCategory,
+      status: "unlearned"
+    });
+    closeManualCardForm();
+    await reloadCards();
+    renderCategoryScreen();
+    showToast("カードを1件追加しました");
+  } catch (error) {
+    showDataError("カードを追加できませんでした", error);
+  }
+}
+
+async function restoreBackupCsv(file) {
+  elements.restoreButton.disabled = true;
+  try {
+    const csvText = await readUtf8File(file);
+    const restoredCards = CsvImporter.parseBackupCsv(csvText);
+    const categoryCount = new Set(restoredCards.map((card) => card.category)).size;
+    const shouldRestore = window.confirm(
+      `バックアップから${restoredCards.length}件・${categoryCount}カテゴリを復元します。\n現在のカテゴリとカードはすべて置き換わります。続けますか？`
+    );
+    if (!shouldRestore) return;
+
+    await FlashcardDB.replaceAllCards(restoredCards);
+    selectedCategory = "";
+    await reloadCards();
+    showScreen(elements.homeScreen);
+    showToast(`${restoredCards.length}件のカードを復元しました`);
+  } catch (error) {
+    console.error("バックアップ復元に失敗しました", error);
+    showToast(error.message || "バックアップを復元できませんでした");
+  } finally {
+    elements.restoreButton.disabled = false;
+    elements.restoreCsvInput.value = "";
+  }
+}
+
 function escapeCsvField(value) {
   const text = String(value ?? "");
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
@@ -619,6 +685,14 @@ function addEventListeners() {
   elements.retryButton.addEventListener("click", retrySameCards);
   elements.seedButton.addEventListener("click", seedDummyCards);
   elements.backupButton.addEventListener("click", exportBackupCsv);
+  elements.restoreButton.addEventListener("click", () => elements.restoreCsvInput.click());
+  elements.restoreCsvInput.addEventListener("change", () => {
+    const [file] = elements.restoreCsvInput.files;
+    if (file) restoreBackupCsv(file);
+  });
+  elements.showManualCardFormButton.addEventListener("click", openManualCardForm);
+  elements.cancelManualCardButton.addEventListener("click", closeManualCardForm);
+  elements.manualCardForm.addEventListener("submit", addManualCard);
   elements.categoryImportButton.addEventListener("click", () => elements.categoryCsvInput.click());
   elements.categoryCsvInput.addEventListener("change", () => {
     const [file] = elements.categoryCsvInput.files;

@@ -103,7 +103,41 @@ const CsvImporter = (() => {
     return cards;
   }
 
-  return { parseCsv, parseCardCsv };
+  function parseBackupCsv(text) {
+    const rows = parseCsv(text);
+    if (rows.length === 0) throw createFormatError("CSVが空です");
+
+    const header = [...rows[0]];
+    header[0] = header[0]?.replace(/^\uFEFF/, "");
+    const expectedHeader = ["question", "answer", "category", "status"];
+    const isValidHeader = header.length === expectedHeader.length
+      && header.every((column, index) => column === expectedHeader[index]);
+    if (!isValidHeader) {
+      throw createFormatError("ヘッダーは question,answer,category,status にしてください", 1);
+    }
+
+    const validStatuses = ["unlearned", "review", "memorized"];
+    const cards = [];
+    rows.slice(1).forEach((columns, index) => {
+      const rowNumber = index + 2;
+      if (columns.length === 1 && columns[0].trim() === "") return;
+      if (columns.length !== 4) throw createFormatError("列数は4列にしてください", rowNumber);
+
+      const [question, answer, category, status] = columns.map((column) => column.trim());
+      if (!question || !answer || !category || !status) {
+        throw createFormatError("question、answer、category、statusは空にできません", rowNumber);
+      }
+      if (!validStatuses.includes(status)) {
+        throw createFormatError("statusは unlearned、review、memorized のいずれかにしてください", rowNumber);
+      }
+      cards.push({ question, answer, category, status });
+    });
+
+    if (cards.length === 0) throw createFormatError("復元できるカードがありません");
+    return cards;
+  }
+
+  return { parseCsv, parseCardCsv, parseBackupCsv };
 })();
 
 globalThis.CsvImporter = CsvImporter;
