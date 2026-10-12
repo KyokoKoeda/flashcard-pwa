@@ -1,13 +1,13 @@
 "use strict";
 
-const CACHE_NAME = "flashcard-pwa-v4";
+const CACHE_NAME = "flashcard-pwa-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./db.js",
-  "./csv.js",
-  "./app.js",
+  "./styles.css?v=5",
+  "./db.js?v=5",
+  "./csv.js?v=5",
+  "./app.js?v=5",
   "./manifest.webmanifest",
   "./icons/icon-180.png",
   "./icons/icon-192.png",
